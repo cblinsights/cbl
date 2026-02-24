@@ -3,123 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Debt Tracker</title>
+<title>Debt Tracker Pro</title>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    padding: 20px;
-}
-
-h1 {
-    text-align: center;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}
-
-th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: center;
-}
-
-th {
-    background: #6c63ff;
-    color: white;
-}
-
-input {
-    width: 100%;
-    border: none;
-    text-align: center;
-}
-
-button {
-    padding: 10px;
-    margin-top: 10px;
-    background: #6c63ff;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.summary {
-    margin-top: 20px;
-    background: white;
-    padding: 15px;
-}
+body {font-family: Arial; padding:20px; background:#f5f6fa;}
+table {width:100%; background:white; border-collapse:collapse;}
+th, td {padding:10px; border:1px solid #ddd; text-align:center;}
+th {background:#4B49AC; color:white;}
+input {width:100%; border:none; text-align:center;}
+button {padding:10px; margin:10px; background:#4B49AC; color:white; border:none;}
+.progress {background:#ddd; height:10px;}
+.bar {background:#4B49AC; height:10px; width:0%;}
 </style>
 </head>
 
 <body>
 
-<h1>Debt Payoff Tracker</h1>
+<h2>Debt Payoff Tracker Pro</h2>
+
+<select id="method" onchange="sortDebts()">
+<option value="snowball">Snowball Method</option>
+<option value="avalanche">Avalanche Method</option>
+</select>
 
 <table id="debtTable">
 <tr>
-<th>Debt Name</th>
-<th>Total Balance</th>
+<th>Name</th>
+<th>Balance</th>
 <th>Interest %</th>
-<th>Minimum Payment</th>
-<th>Amount Paid</th>
+<th>Min Pay</th>
+<th>Paid</th>
 <th>Remaining</th>
+<th>Progress</th>
 </tr>
-
-<tr>
-<td><input></td>
-<td><input type="number" class="balance"></td>
-<td><input type="number"></td>
-<td><input type="number"></td>
-<td><input type="number" class="paid"></td>
-<td class="remaining">$0</td>
-</tr>
-
 </table>
 
 <button onclick="addRow()">Add Debt</button>
-<button onclick="calculateDebt()">Update Totals</button>
+<button onclick="update()">Update</button>
 
-<div class="summary">
-<h3>Total Debt Remaining: $<span id="totalRemaining">0</span></h3>
-</div>
+<h3>Total Remaining: $<span id="totalRemaining">0</span></h3>
+<div class="progress"><div class="bar" id="totalBar"></div></div>
 
 <script>
-function addRow() {
-    let table = document.getElementById("debtTable");
-    let row = table.insertRow();
-
-    row.innerHTML = `
-    <td><input></td>
-    <td><input type="number" class="balance"></td>
-    <td><input type="number"></td>
-    <td><input type="number"></td>
-    <td><input type="number" class="paid"></td>
-    <td class="remaining">$0</td>
-    `;
+function format(num){
+return num.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
-function calculateDebt() {
-    let balances = document.getElementsByClassName("balance");
-    let paid = document.getElementsByClassName("paid");
-    let remainingCells = document.getElementsByClassName("remaining");
+function addRow(data={}){
+let table=document.getElementById("debtTable");
+let row=table.insertRow();
 
-    let total = 0;
-
-    for(let i=0; i<balances.length; i++) {
-        let bal = parseFloat(balances[i].value) || 0;
-        let pay = parseFloat(paid[i].value) || 0;
-        let remain = bal - pay;
-        remainingCells[i].innerText = "$" + remain.toFixed(2);
-        total += remain;
-    }
-
-    document.getElementById("totalRemaining").innerText = total.toFixed(2);
+row.innerHTML=`
+<td><input value="${data.name||""}" onchange="save()"></td>
+<td><input type="number" class="bal" value="${data.bal||0}" onchange="save()"></td>
+<td><input type="number" class="int" value="${data.int||0}" onchange="save()"></td>
+<td><input type="number" class="min" value="${data.min||0}" onchange="save()"></td>
+<td><input type="number" class="paid" value="${data.paid||0}" onchange="save()"></td>
+<td class="remain">$0</td>
+<td><div class="progress"><div class="bar"></div></div></td>`;
 }
+
+function update(){
+let bal=document.getElementsByClassName("bal");
+let paid=document.getElementsByClassName("paid");
+let int=document.getElementsByClassName("int");
+let remain=document.getElementsByClassName("remain");
+let bars=document.getElementsByClassName("bar");
+
+let total=0, original=0;
+
+for(let i=0;i<bal.length;i++){
+let b=parseFloat(bal[i].value)||0;
+let p=parseFloat(paid[i].value)||0;
+let rate=(parseFloat(int[i].value)||0)/100/12;
+
+let interest=b*rate;
+let rem=(b+interest)-p;
+
+remain[i].innerText="$"+format(rem);
+
+let percent=((p)/(b))*100||0;
+bars[i].style.width=percent+"%";
+
+total+=rem;
+original+=b;
+}
+
+document.getElementById("totalRemaining").innerText=format(total);
+document.getElementById("totalBar").style.width=((original-total)/original*100||0)+"%";
+
+save();
+}
+
+function sortDebts(){
+let method=document.getElementById("method").value;
+let rows=[...document.querySelectorAll("#debtTable tr")].slice(1);
+
+rows.sort((a,b)=>{
+let balA=parseFloat(a.querySelector(".bal").value)||0;
+let balB=parseFloat(b.querySelector(".bal").value)||0;
+let intA=parseFloat(a.querySelector(".int").value)||0;
+let intB=parseFloat(b.querySelector(".int").value)||0;
+return method=="snowball"?balA-balB:intB-intA;
+});
+
+rows.forEach(r=>document.getElementById("debtTable").appendChild(r));
+}
+
+function save(){
+let data=[];
+let rows=[...document.querySelectorAll("#debtTable tr")].slice(1);
+
+rows.forEach(r=>{
+data.push({
+name:r.cells[0].firstChild.value,
+bal:r.cells[1].firstChild.value,
+int:r.cells[2].firstChild.value,
+min:r.cells[3].firstChild.value,
+paid:r.cells[4].firstChild.value
+});
+});
+
+localStorage.setItem("debts",JSON.stringify(data));
+}
+
+function load(){
+let data=JSON.parse(localStorage.getItem("debts")||"[]");
+data.forEach(d=>addRow(d));
+update();
+}
+
+load();
 </script>
 
 </body>
