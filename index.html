@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt Tracker</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background: #6c63ff;
+    color: white;
+}
+
+input {
+    width: 100%;
+    border: none;
+    text-align: center;
+}
+
+button {
+    padding: 10px;
+    margin-top: 10px;
+    background: #6c63ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.summary {
+    margin-top: 20px;
+    background: white;
+    padding: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Debt Payoff Tracker</h1>
+
+<table id="debtTable">
+<tr>
+<th>Debt Name</th>
+<th>Total Balance</th>
+<th>Interest %</th>
+<th>Minimum Payment</th>
+<th>Amount Paid</th>
+<th>Remaining</th>
+</tr>
+
+<tr>
+<td><input></td>
+<td><input type="number" class="balance"></td>
+<td><input type="number"></td>
+<td><input type="number"></td>
+<td><input type="number" class="paid"></td>
+<td class="remaining">$0</td>
+</tr>
+
+</table>
+
+<button onclick="addRow()">Add Debt</button>
+<button onclick="calculateDebt()">Update Totals</button>
+
+<div class="summary">
+<h3>Total Debt Remaining: $<span id="totalRemaining">0</span></h3>
+</div>
+
+<script>
+function addRow() {
+    let table = document.getElementById("debtTable");
+    let row = table.insertRow();
+
+    row.innerHTML = `
+    <td><input></td>
+    <td><input type="number" class="balance"></td>
+    <td><input type="number"></td>
+    <td><input type="number"></td>
+    <td><input type="number" class="paid"></td>
+    <td class="remaining">$0</td>
+    `;
+}
+
+function calculateDebt() {
+    let balances = document.getElementsByClassName("balance");
+    let paid = document.getElementsByClassName("paid");
+    let remainingCells = document.getElementsByClassName("remaining");
+
+    let total = 0;
+
+    for(let i=0; i<balances.length; i++) {
+        let bal = parseFloat(balances[i].value) || 0;
+        let pay = parseFloat(paid[i].value) || 0;
+        let remain = bal - pay;
+        remainingCells[i].innerText = "$" + remain.toFixed(2);
+        total += remain;
+    }
+
+    document.getElementById("totalRemaining").innerText = total.toFixed(2);
+}
+</script>
+
+</body>
+</html>
