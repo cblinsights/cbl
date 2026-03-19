@@ -3,22 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CBL Money Dashboard</title>
+<title>CBL Money App</title>
 
 <style>
+:root {
+    --purple: #4B0082;
+    --orange: #FF8C00;
+    --bg: #f5f6fa;
+}
+
 body {
     margin: 0;
-    font-family: Arial;
-    background: #f5f6fa;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
 }
 
 /* Top Bar */
 .topbar {
-    background: #4B0082;
+    background: linear-gradient(135deg, var(--purple), var(--orange));
     color: white;
-    padding: 15px 20px;
+    padding: 16px 24px;
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 /* Layout */
@@ -28,39 +34,59 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 220px;
+    width: 240px;
     background: white;
     height: 100vh;
     padding: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
 }
 
-.sidebar a {
-    display: block;
-    margin: 15px 0;
-    text-decoration: none;
-    color: #333;
+.logo {
+    font-size: 22px;
     font-weight: bold;
+    margin-bottom: 30px;
+    color: var(--purple);
+}
+
+.nav-item {
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
     cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
 }
 
-.sidebar a:hover {
-    color: #FF8C00;
+.nav-item:hover {
+    background: #f0e9ff;
 }
 
-/* Main Content */
+.active {
+    background: linear-gradient(135deg, var(--purple), var(--orange));
+    color: white;
+}
+
+/* Main */
 .main {
     flex: 1;
-    padding: 20px;
+    padding: 25px;
 }
 
-/* iframe (loads your tools) */
-iframe {
-    width: 100%;
-    height: 80vh;
-    border: none;
+/* Cards */
+.card {
     background: white;
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* Sections hidden by default */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
 }
 </style>
 </head>
@@ -68,28 +94,62 @@ iframe {
 <body>
 
 <div class="topbar">
-CBL Money
+CBL Money — Financial Dashboard
 </div>
 
 <div class="container">
 
 <div class="sidebar">
-<a onclick="loadPage('dashboard.html')">📊 Dashboard</a>
-<a onclick="loadPage('debt-tracker.html')">💳 Debt Tracker</a>
+<div class="logo">CBL Money</div>
+
+<div class="nav-item active" onclick="showPage('home', this)">🏠 Home</div>
+<div class="nav-item" onclick="showPage('dashboard', this)">📊 Dashboard</div>
+<div class="nav-item" onclick="showPage('debt', this)">💳 Debt Tracker</div>
+
 </div>
 
 <div class="main">
-<h2>You've Got This! Master Your Finances One Tab At A Time</h2>
-<p>Select a tool from the left to begin.</p>
 
-<iframe id="frame"></iframe>
+<!-- HOME -->
+<div id="home" class="page active">
+<div class="card">
+<h2>Welcome</h2>
+<p>This is your personal financial control center.</p>
+<p>Use the sidebar to manage your money, track debt, and monitor spending.</p>
+</div>
 </div>
 
+<!-- DASHBOARD -->
+<div id="dashboard" class="page">
+<div class="card">
+<h2>Monthly Dashboard</h2>
+<iframe src="dashboard.html" style="width:100%; height:600px; border:none;"></iframe>
+</div>
+</div>
+
+<!-- DEBT -->
+<div id="debt" class="page">
+<div class="card">
+<h2>Debt Tracker</h2>
+<iframe src="debt-tracker.html" style="width:100%; height:600px; border:none;"></iframe>
+</div>
+</div>
+
+</div>
 </div>
 
 <script>
-function loadPage(page){
-document.getElementById("frame").src = page;
+function showPage(pageId, element){
+
+// hide all pages
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+// show selected
+document.getElementById(pageId).classList.add('active');
+
+// update nav styles
+document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+element.classList.add('active');
 }
 </script>
 
