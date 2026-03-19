@@ -6,6 +6,20 @@
 <title>Monthly Money Dashboard</title>
 
 <style>
+.home-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #4B0082, #FF8C00);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+
+    
 
 body {
     font-family: Arial;
@@ -72,7 +86,7 @@ button {
 </head>
 
 <body>
-
+<button class="home-btn" onclick="goHome()">← Home</button>
 <h1>Monthly Money Dashboard</h1>
 
 <div class="container">
@@ -176,7 +190,7 @@ update();
 }
 
 load();
-<button onclick="goHome()" class="home-btn">← Back to Home</button>
+
 </script>
 
 </body>
