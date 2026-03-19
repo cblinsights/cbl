@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Money Dashboard</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f5f6fa;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #4B0082;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    text-align: center;
+}
+
+button {
+    padding: 10px;
+    background: #FF8C00;
+    color: white;
+    border: none;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.progress {
+    background: #ddd;
+    height: 12px;
+    border-radius: 6px;
+}
+
+.bar {
+    height: 12px;
+    background: #4B0082;
+    width: 0%;
+    border-radius: 6px;
+}
+
+.flex {
+    display: flex;
+    gap: 10px;
+}
+
+.flex div {
+    flex: 1;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Monthly Money Dashboard</h1>
+
+<div class="container">
+
+<div class="card">
+<h3>Income</h3>
+<input type="number" id="income" placeholder="Total Monthly Income">
+</div>
+
+<div class="card">
+<h3>Expenses</h3>
+<div id="expenseList"></div>
+<button onclick="addExpense()">Add Expense</button>
+</div>
+
+<div class="card">
+<h3>Summary</h3>
+
+<p>Total Expenses: $<span id="totalExpenses">0</span></p>
+<p>Money Left: $<span id="remaining">0</span></p>
+
+<div class="progress">
+<div class="bar" id="spendBar"></div>
+</div>
+
+<p><small>% of income spent</small></p>
+
+</div>
+
+</div>
+
+<script>
+
+function format(num){
+return num.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function addExpense(data={}){
+let div = document.createElement("div");
+
+div.innerHTML = `
+<input placeholder="Expense Name" value="${data.name||""}" onchange="save()">
+<input type="number" placeholder="Amount" class="expense" value="${data.amount||0}" onchange="update()">
+`;
+
+document.getElementById("expenseList").appendChild(div);
+}
+
+function update(){
+let income = parseFloat(document.getElementById("income").value) || 0;
+let expenses = document.getElementsByClassName("expense");
+
+let total = 0;
+
+for(let i=0;i<expenses.length;i++){
+total += parseFloat(expenses[i].value)||0;
+}
+
+let remaining = income - total;
+let percent = income ? (total/income)*100 : 0;
+
+document.getElementById("totalExpenses").innerText = format(total);
+document.getElementById("remaining").innerText = format(remaining);
+document.getElementById("spendBar").style.width = percent + "%";
+
+save();
+}
+
+function save(){
+let income = document.getElementById("income").value;
+
+let data = {
+income: income,
+expenses: []
+};
+
+let rows = document.getElementById("expenseList").children;
+
+for(let r of rows){
+data.expenses.push({
+name: r.children[0].value,
+amount: r.children[1].value
+});
+}
+
+localStorage.setItem("moneyDashboard", JSON.stringify(data));
+}
+
+function load(){
+let data = JSON.parse(localStorage.getItem("moneyDashboard") || "{}");
+
+if(data.income){
+document.getElementById("income").value = data.income;
+}
+
+if(data.expenses){
+data.expenses.forEach(e => addExpense(e));
+}
+
+update();
+}
+
+load();
+
+</script>
+
+</body>
+</html>
